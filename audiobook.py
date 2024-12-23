@@ -2,7 +2,7 @@ import streamlit as st
 import fitz  # PyMuPDF
 import edge_tts
 import asyncio
-
+import BytesIO from io
 
 # Function to extract text from a PDF page
 def extract_text_from_page(pdf_path, page_number):
