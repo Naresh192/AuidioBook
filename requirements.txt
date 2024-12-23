@@ -1,3 +1,5 @@
 streamlit
 PyMuPDF
 edge_tts
+gtts
+pydub
