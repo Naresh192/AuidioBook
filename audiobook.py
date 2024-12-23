@@ -36,6 +36,6 @@ if uploaded_file is not None:
         st.write(text)  # Display extracted text
         
         output_file = "output.mp3"
-        text_to_speech(text, output_file)
+        text_to_speech(text)
         
         st.audio(output_file, format='audio/mp3')
