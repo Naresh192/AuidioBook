@@ -12,7 +12,7 @@ def extract_text_from_page(pdf_path, page_number):
 
 # Function to convert text to speech using edge_tts
 async def text_to_speech(text, output_file):
-    communicate = edge_tts.Communicate(text, "en-US-JennyNeural", verify=False)
+    communicate = edge_tts.Communicate(text, "en-US-JennyNeural")
     await communicate.save(output_file)
 
 # Streamlit app
