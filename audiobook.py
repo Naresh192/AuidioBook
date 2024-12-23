@@ -41,7 +41,7 @@ if uploaded_file is not None:
             audio_io = BytesIO()
             tts.write_to_fp(audio_io)
             audio_io.seek(0)
-            audio_segment = AudioSegment.from_file(audio_io, format="mp3")
+            audio_segment = AudioSegment.from_file_using_temporary_files(audio_io, format="mp3")
             audio_segments.append(audio_segment)
         
         # Combine the audio segments
