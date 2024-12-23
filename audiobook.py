@@ -3,6 +3,7 @@ import fitz  # PyMuPDF
 import edge_tts
 import asyncio
 
+
 # Function to extract text from a PDF page
 def extract_text_from_page(pdf_path, page_number):
     doc = fitz.open(pdf_path)
@@ -10,10 +11,12 @@ def extract_text_from_page(pdf_path, page_number):
     text = page.get_text()
     return text
 
-# Function to convert text to speech using edge_tts
-async def text_to_speech(text, output_file):
-    communicate = edge_tts.Communicate(text, "en-US-JennyNeural")
-    await communicate.save(output_file)
+from gtts import gTTS
+from pydub import AudioSegment
+
+def text_to_speech(text, lang='en'):
+    tts = gTTS(text=text, lang=lang, slow=False)
+    tts.save('output.mp3')
 
 # Streamlit app
 st.title("PDF to Audiobook Converter")
@@ -33,6 +36,6 @@ if uploaded_file is not None:
         st.write(text)  # Display extracted text
         
         output_file = "output.mp3"
-        asyncio.run(text_to_speech(text, output_file))
+        text_to_speech(text, output_file)
         
         st.audio(output_file, format='audio/mp3')
