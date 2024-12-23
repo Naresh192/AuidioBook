@@ -35,17 +35,19 @@ if uploaded_file is not None:
         text = extract_text_from_page(pdf_path, page_number)
         # Split the text into smaller chunks
         chunks = text.split('. ')  # Splitting by sentences
-        audio_files = []
-        for i, chunk in enumerate(chunks):
+        audio_segments = []
+        for chunk in chunks:
             tts = gTTS(text=chunk, lang='en')
-            filename = f"chunk_{i}.mp3"
-            tts.save(filename)
-            audio_files.append(filename)
-        # Combine the audio files
+            audio_io = BytesIO()
+            tts.write_to_fp(audio_io)
+            audio_io.seek(0)
+            audio_segment = AudioSegment.from_file(audio_io, format="mp3")
+            audio_segments.append(audio_segment)
+        
+        # Combine the audio segments
         combined = AudioSegment.empty()
-        for file in audio_files:
-            audio = AudioSegment.from_mp3(file)
-            combined += audio
+        for segment in audio_segments:
+            combined += segment
         st.write(text)  # Display extracted text
         
         output_file = "output.mp3"
