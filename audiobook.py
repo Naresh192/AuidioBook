@@ -2,7 +2,7 @@ import streamlit as st
 import fitz  # PyMuPDF
 import edge_tts
 import asyncio
-from io import BytesIO
+
 
 # Function to extract text from a PDF page
 def extract_text_from_page(pdf_path, page_number):
@@ -27,35 +27,36 @@ if uploaded_file is not None:
     pdf_path = uploaded_file.name
     with open(pdf_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
-    
+
     num_pages = len(fitz.open(pdf_path))
     page_number = st.number_input("Select Page Number", min_value=1, max_value=num_pages, step=1)
-    
+
     if st.button("Convert to Audio"):
         text = extract_text_from_page(pdf_path, page_number)
         # Split the text into smaller chunks
         chunks = text.split('. ')  # Splitting by sentences
-        audio_segments = []
-        for chunk in chunks:
+        audio_files = []
+        for i, chunk in enumerate(chunks):
             tts = gTTS(text=chunk, lang='en')
-            audio_io = BytesIO()
-            tts.write_to_fp(audio_io)
-            audio_io.seek(0)
-            audio_segment = AudioSegment.from_file_using_temporary_files(audio_io, format="mp3")
-            audio_segments.append(audio_segment)
+            filename = f"chunk_{i}.mp3"
+            tts.save(filename)
+            audio_files.append(filename)
         
-        # Combine the audio segments
+        # Combine the audio files
         combined = AudioSegment.empty()
+        for file in audio_files:
+            audio = AudioSegment.from_mp3(file)
+            combined += audio
         for segment in audio_segments:
             combined += segment
         st.write(text)  # Display extracted text
-        
+
         output_file = "output.mp3"
         # Export the combined audio file
         combined.export("output.mp3", format="mp3")
-        
+
         # Delete the chunk files
         for file in audio_files:
             os.remove(file)
-        
+
         st.audio(output_file, format='audio/mp3')
