@@ -18,6 +18,7 @@ st.markdown("""
     <style>
     audio {
   display: none;
+  
 }
     </style>
 """, unsafe_allow_html=True)
