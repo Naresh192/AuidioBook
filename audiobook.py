@@ -22,12 +22,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-def get_audio_length(audio_bytes):
-    audio_fp = io.BytesIO(audio_bytes)
-    
-    audio = AudioSegment.from_file(audio_fp, format="mp3")
-    duration = len(audio) / 1000.0  # Duration in seconds
-    return duration
+
+from mutagen.mp3 import MP3
+import io
+
+def get_audio_length(mp3_bytes):
+    audio = MP3(io.BytesIO(mp3_bytes))
+    return audio.info.length
 
 # Function to convert a sentence to audio
 def text_to_audio(sentence, index):
