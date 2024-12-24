@@ -18,13 +18,14 @@ st.markdown("""
     <style>
     audio {
   display: none;
-  
 }
     </style>
 """, unsafe_allow_html=True)
 
 def get_audio_length(audio_bytes):
-    audio = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3")
+    audio_fp = io.BytesIO(audio_bytes)
+    
+    audio = AudioSegment.from_file(io.BytesIO(audio_fp), format="mp3")
     duration = len(audio) / 1000.0  # Duration in seconds
     return duration
 
