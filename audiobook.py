@@ -6,6 +6,9 @@ import streamlit.components.v1 as components
 import pyttsx3
 import tempfile
 import os
+from pydub import AudioSegment
+
+
 
 
 from concurrent.futures import ThreadPoolExecutor
@@ -49,6 +52,10 @@ def text_to_audio(sentence, index):
     temp_file_name = temp_file.name
     engine.save_to_file(sentence, temp_file_name)
     temp_file.close()
+    # Load the WAV file
+    audio = AudioSegment.from_wav(temp_file_name)
+    # Calculate the duration in seconds
+    duration = len(audio) / 1000.0
     engine.runAndWait()
     f=open(temp_file_name,'rb')
     data=f.read()
@@ -57,7 +64,7 @@ def text_to_audio(sentence, index):
     os.remove(temp_file_name)
 
     #tts = gTTS(text=sentence, lang='en')
-    audio_objects.append((sentence, data))
+    audio_objects.append((sentence, data,duration))
 
 def split_paragraph_into_sentences(paragraph):
     # Regular expression to match sentence-ending punctuation
@@ -97,14 +104,13 @@ if uploaded_file is not None:
         # Streamlit app to display sentences and play audio
         st.write("Hello")
         st.write(audio_objects)
-        for index, (sentence, tts) in enumerate(audio_objects):
+        for index, (sentence, tts,dur) in enumerate(audio_objects):
             #audio_fp = io.BytesIO()
             #tts.write_to_fp(audio_fp)
             #audio_fp.seek(0)
             # Simulate loading your audio file (replace this with your actual audio data)
             audio_bytes = tts  # Your audio data in bytes
             st.write("Hello")
-            dur=get_audio_length(audio_bytes)
             # Encode the audio data to base64
             audio_base64 = base64.b64encode(audio_bytes).decode()
 
