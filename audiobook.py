@@ -99,7 +99,10 @@ if uploaded_file is not None:
 
         # Use ThreadPoolExecutor to convert sentences in parallel
         for index, sentence in enumerate(sentences):
+            try:
                 text_to_audio(sentence, index)
+            except :
+                pass
         st.write(text)  # Display extracted text
         # Streamlit app to display sentences and play audio
         st.write("Hello")
