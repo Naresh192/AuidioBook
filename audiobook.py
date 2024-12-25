@@ -43,7 +43,7 @@ def text_to_audio(sentence, index):
     voices = engine.getProperty('voices')
     for voice in voices:
         print(f"Voice: {voice.name}, ID: {voice.id}")
-    engine.setProperty('rate', 50)    # Speed of speech
+    engine.setProperty('rate', 150)    # Speed of speech
 
     engine.setProperty('voice', 'English (America)')
 
