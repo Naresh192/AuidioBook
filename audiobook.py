@@ -91,9 +91,8 @@ if uploaded_file is not None:
         sentences = split_paragraph_into_sentences(text)
 
         # Use ThreadPoolExecutor to convert sentences in parallel
-        with ThreadPoolExecutor() as executor:
-            for index, sentence in enumerate(sentences):
-                executor.submit(text_to_audio, sentence, index)
+        for index, sentence in enumerate(sentences):
+                text_to_audio(sentence, index)
         st.write(text)  # Display extracted text
         # Streamlit app to display sentences and play audio
         st.write("Hello")
