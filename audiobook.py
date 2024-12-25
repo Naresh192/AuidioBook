@@ -45,7 +45,7 @@ def text_to_audio(sentence, index):
         print(f"Voice: {voice.name}, ID: {voice.id}")
     engine.setProperty('rate', 50)    # Speed of speech
 
-    engine.setProperty('voice', voices[-1].id)
+    engine.setProperty('voice', 'English (America)')
 
     # Create a temporary file
     temp_file = tempfile.NamedTemporaryFile(delete=False,suffix='.wav')
