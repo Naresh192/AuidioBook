@@ -3,6 +3,10 @@ import fitz  # PyMuPDF
 import re
 from gtts import gTTS
 import streamlit.components.v1 as components
+import pyttsx3
+import tempfile
+import os
+
 
 from concurrent.futures import ThreadPoolExecutor
 audio_objects=[]
@@ -32,11 +36,28 @@ def get_audio_length(mp3_bytes):
 
 # Function to convert a sentence to audio
 def text_to_audio(sentence, index):
-    tts = gTTS(text=sentence, lang='en')
-    audio_objects.append((sentence, tts))
-    filename = f"sentence_{index}.mp3"
-    tts.save(filename)
-    print(f"Saved {filename}")
+    engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    for voice in voices:
+        print(f"Voice: {voice.name}, ID: {voice.id}")
+    engine.setProperty('rate', 150)    # Speed of speech
+
+    engine.setProperty('voice', voices[1].id)
+
+    # Create a temporary file
+    temp_file = tempfile.NamedTemporaryFile(delete=False,suffix='.wav')
+    temp_file_name = temp_file.name
+    engine.save_to_file(sentence, temp_file_name)
+    temp_file.close()
+    engine.runAndWait()
+    f=open(temp_file_name,'rb')
+    data=f.read()
+    f.close()
+    st.write(len(data))
+    os.remove(temp_file_name)
+
+    #tts = gTTS(text=sentence, lang='en')
+    audio_objects.append((sentence, data))
 
 def split_paragraph_into_sentences(paragraph):
     # Regular expression to match sentence-ending punctuation
@@ -69,21 +90,21 @@ if uploaded_file is not None:
         # Example usage
         sentences = split_paragraph_into_sentences(text)
 
-        for i, sentence in enumerate(sentences):
-            print(f"{sentence}")
         # Use ThreadPoolExecutor to convert sentences in parallel
         with ThreadPoolExecutor() as executor:
             for index, sentence in enumerate(sentences):
                 executor.submit(text_to_audio, sentence, index)
         st.write(text)  # Display extracted text
         # Streamlit app to display sentences and play audio
-        
+        st.write("Hello")
+        st.write(audio_objects)
         for index, (sentence, tts) in enumerate(audio_objects):
-            audio_fp = io.BytesIO()
-            tts.write_to_fp(audio_fp)
-            audio_fp.seek(0)
+            #audio_fp = io.BytesIO()
+            #tts.write_to_fp(audio_fp)
+            #audio_fp.seek(0)
             # Simulate loading your audio file (replace this with your actual audio data)
-            audio_bytes = audio_fp.read()  # Your audio data in bytes
+            audio_bytes = tts  # Your audio data in bytes
+            st.write("Hello")
             dur=get_audio_length(audio_bytes)
             # Encode the audio data to base64
             audio_base64 = base64.b64encode(audio_bytes).decode()
@@ -91,7 +112,7 @@ if uploaded_file is not None:
             # Send the base64 string to the frontend
             st.markdown(f"""
                 <audio id="audio{index}" autoplay>
-                    <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+                    <source src="data:audio/wav;base64,{audio_base64}" type="audio/mp3">
                 </audio>
             """, unsafe_allow_html=True)
             time.sleep(dur)
