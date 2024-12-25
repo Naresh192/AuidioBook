@@ -61,6 +61,7 @@ def text_to_audio(sentence, index):
     audio = AudioSegment.from_wav(temp_file_name)
     # Calculate the duration in seconds
     duration = len(audio) / 1000.0
+    st.write(duration)
     os.remove(temp_file_name)
 
     #tts = gTTS(text=sentence, lang='en')
