@@ -56,12 +56,10 @@ def text_to_audio(sentence, index):
     f=open(temp_file_name,'rb')
     data=f.read()
     f.close()
-    st.write(len(data))
     # Load the WAV file
     audio = AudioSegment.from_wav(temp_file_name)
     # Calculate the duration in seconds
     duration = len(audio) / 1000.0
-    st.write(duration)
     os.remove(temp_file_name)
 
     #tts = gTTS(text=sentence, lang='en')
@@ -125,6 +123,7 @@ if uploaded_file is not None:
                 </audio>
             """, unsafe_allow_html=True)
             time.sleep(dur)
+            st.write(sentence,dur)
 
 
 
