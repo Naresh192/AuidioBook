@@ -53,15 +53,14 @@ def text_to_audio(sentence, index):
     engine.save_to_file(sentence, temp_file_name)
     temp_file.close()
     engine.runAndWait()
-    # Load the WAV file
-    audio = AudioSegment.from_wav(temp_file_name)
-    # Calculate the duration in seconds
-    duration = len(audio) / 1000.0
-    engine.runAndWait()
     f=open(temp_file_name,'rb')
     data=f.read()
     f.close()
     st.write(len(data))
+    # Load the WAV file
+    audio = AudioSegment.from_wav(temp_file_name)
+    # Calculate the duration in seconds
+    duration = len(audio) / 1000.0
     os.remove(temp_file_name)
 
     #tts = gTTS(text=sentence, lang='en')
