@@ -52,6 +52,7 @@ def text_to_audio(sentence, index):
     temp_file_name = temp_file.name
     engine.save_to_file(sentence, temp_file_name)
     temp_file.close()
+    engine.runAndWait()
     # Load the WAV file
     audio = AudioSegment.from_wav(temp_file_name)
     # Calculate the duration in seconds
