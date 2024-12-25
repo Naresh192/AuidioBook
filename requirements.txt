@@ -4,3 +4,4 @@ edge_tts
 gtts
 pydub
 mutagen
+pyttsx3
