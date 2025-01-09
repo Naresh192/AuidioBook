@@ -14,6 +14,12 @@ def add_user(user_name):
 def remove_user(user_name):
     if user_name in st.session_state['online_users']:
         st.session_state['online_users'].remove(user_name)
+def on_start():
+    st.write("Stream started")
+
+def on_stop():
+    st.write("Stream stopped")
+
 
 # User login
 user_name = st.text_input("Enter your name")
@@ -34,7 +40,13 @@ WEBRTC_CLIENT_SETTINGS = ClientSettings(
 # Initiate voice call
 if st.button("Call"):
     st.write(f"Calling {selected_user}...")
-    webrtc_streamer(key=f"call_{selected_user}", mode=WebRtcMode.SENDRECV, client_settings=WEBRTC_CLIENT_SETTINGS)
+    webrtc_streamer(
+    key=f"call_{selected_user}",
+    mode=WebRtcMode.SENDRECV,
+    client_settings=WEBRTC_CLIENT_SETTINGS,
+    on_start=on_start,
+    on_stop=on_stop
+)
 
 # User logout
 if st.button("Leave Chat"):
