@@ -1,54 +1,62 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, WebRtcMode, ClientSettings
+import asyncio
+import websockets
+from aiortc import RTCPeerConnection, RTCSessionDescriptionimport subprocess
 
-# Initialize session state for online users
-if 'online_users' not in st.session_state:
-    st.session_state['online_users'] = ["User1", "User2", "User3"]
+# Function to start the server script
+def start_server():
+    subprocess.Popen(["python", "server.py"])
 
-# Function to add a new user to the online users list
-def add_user(user_name):
-    if user_name not in st.session_state['online_users']:
-        st.session_state['online_users'].append(user_name)
+# Check if the server is already running
+if 'server_started' not in st.session_state:
+    st.session_state['server_started'] = False
 
-# Function to remove a user from the online users list
-def remove_user(user_name):
-    if user_name in st.session_state['online_users']:
-        st.session_state['online_users'].remove(user_name)
-def on_start():
-    st.write("Stream started")
-
-def on_stop():
-    st.write("Stream stopped")
+if not st.session_state['server_started']:
+    start_server()
+    st.session_state['server_started'] = True
 
 
-# User login
-user_name = st.text_input("Enter your name")
-if st.button("Join Chat"):
-    add_user(user_name)
-    st.write(f"Welcome, {user_name}!")
+st.title("Multi-User Audio Chat App")
 
-# Display online users
-selected_user = st.selectbox("Select a user to call", st.session_state['online_users'])
-st.write(f"You selected: {selected_user}")
+# User Authentication (simple example)
+if 'username' not in st.session_state:
+    st.session_state.username = st.text_input("Enter your username")
 
-# WebRTC configuration
-WEBRTC_CLIENT_SETTINGS = ClientSettings(
-    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-    media_stream_constraints={"audio": True, "video": False},
-)
+if st.session_state.username:
+    st.write(f"Hello, {st.session_state.username}!")
 
-# Initiate voice call
-if st.button("Call"):
-    st.write(f"Calling {selected_user}...")
-    webrtc_streamer(
-    key=f"call_{selected_user}",
-    mode=WebRtcMode.SENDRECV,
-    client_settings=WEBRTC_CLIENT_SETTINGS,
-    on_start=on_start,
-    on_stop=on_stop
-)
+    # WebSocket connection
+    async def connect():
+        uri = "ws://localhost:8765"
+        async with websockets.connect(uri) as websocket:
+            st.session_state.websocket = websocket
+            while True:
+                message = await websocket.recv()
+                st.write(f"Message received: {message}")
 
-# User logout
-if st.button("Leave Chat"):
-    remove_user(user_name)
-    st.write(f"Goodbye, {user_name}!")
+    asyncio.run(connect())
+
+    # WebRTC setup
+    pc = RTCPeerConnection()
+
+    @pc.on("icecandidate")
+    async def on_icecandidate(candidate):
+        await st.session_state.websocket.send(candidate.to_json())
+
+    @pc.on("track")
+    def on_track(track):
+        st.audio(track)
+
+    # User Interface
+    online_users = ["User1", "User2", "User3"]  # Example list of online users
+    selected_user = st.selectbox("Select a user to talk to:", online_users)
+
+    if st.button("Start Chat"):
+        st.write(f"Starting chat with {selected_user}")
+        # WebRTC signaling and connection setup
+        offer = pc.createOffer()
+        asyncio.run(pc.setLocalDescription(offer))
+        asyncio.run(st.session_state.websocket.send(offer.sdp))
+
+        answer = asyncio.run(st.session_state.websocket.recv())
+        pc.setRemoteDescription(RTCSessionDescription(answer, "answer"))
