@@ -1,0 +1,2 @@
+streamlit==1.15.0
+streamlit-webrtc==0.35.0
